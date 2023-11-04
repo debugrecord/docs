@@ -16,7 +16,7 @@ jobs:
       - run: sudo apt install gettext
       - run: pip install -r requirements.txt # venv の pip をすべてインストール
       - name: sphinx build(ja)
-        run: sphinx-build -M html . _build
+        run: sphinx-build -M html source _build
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
         with:
