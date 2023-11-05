@@ -39,3 +39,12 @@ source_suffix = {
 #   '.txt': 'restructuredtext',
     '.md': 'markdown',
 }
+
+## myst parser extentions
+
+# By adding "colon_fence" to myst_enable_extensions (in the sphinx conf.py configuration file), 
+# you can also use ::: delimiters to denote directives, instead of ```
+myst_enable_extensions = ["colon_fence"]
+
+# Add line numbers to code blocks with these languages (default: [])
+myst_number_code_blocks = ["python"]
