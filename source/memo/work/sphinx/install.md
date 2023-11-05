@@ -68,6 +68,10 @@ source_suffix = {
 
 4. Githubページへの適用のため、ビルドのディレクトリ構成を変更する。
 Windowsを利用しているため、make.batに以下の設定を追記・書き換え
+:::{warning}
+後述するGitHubActionsを利用する場合は設定不要
+:::
+
 ```bash
 set BUILDDIR=.
 set ALLSPHINXOPTS=-d %BUILDDIR%/doctrees %SPHINXOPTS% source
@@ -85,7 +89,7 @@ if "%1" == "html" (
 ```
 
 ## GitHub Pageの作成
-1. Github上でレポジトリ(doc)を作成した後、masterと gh-pagesという名前のブランチを作成する
+1. Github上でレポジトリ(doc)を作成した後、mainと gh-pagesという名前のブランチを作成する
 ```bash
 git clone https://github.com/debugrecord/docs.git
 cd doc
@@ -93,14 +97,70 @@ git branch master
 git branch gh-pages
 ```
 
-2. 作成したgh-pagesブランチに切り替え、sphinxsプロジェクトコピーし、htmlでビルドする。(index.htmlがルートに来るようにする。)
+2. 作成したRepositoryの`Settings > Code and automation > Pages` でGitHubPagesの設定を行う
+   1. `Build and deployment`に以下の設定を行う
+      - source: deploy from a branch
+      - Branch: gh-pages /(root)
+
+3. 作成したgh-pagesブランチに切り替え、sphinxsプロジェクトコピーし、htmlでビルドする。(index.htmlがルートに来るようにする。)
+:::{warning}
+後述するGitHubActionsを利用する場合は実施不要
+:::
+
 ```bash
 git checkout gh-pages
 cp somepath/test_sphinx .
 make html
 ```
 
-3. ビルドして出来たHTMLをプッシュし、http://xxxxxx.github.io/projectへアクセスする。
+4. ビルドして出来たHTMLをプッシュし、http://xxxxxx.github.io/projectへアクセスする。
+:::{warning}
+後述するGitHubActionsを利用する場合は実施不要
+:::
+
 ```bash
 git push origin gh-pages
 ```
+
+## GitHub Actionsの作成
+`main`ブランチに原本を配置し、`main`ブランチが更新される度に`gh-pages`ブランチにSphinxの出力結果のみを`push`するGitHubActionsの作成
+
+1. Sphinx関連のライブラリがインストールされている環境で`pip freeze`を行い、Sphinxのビルドに必要なライブラリを記載した`requirements.txt`を作成する
+```bash
+pip freeze > requirements.txt
+```
+2. Git repositoryの直下に`requirements.txt`を配置する
+
+3. `.github\docs`配下に以下の内容を記載した`sphinx.yml`を配置する
+
+```yaml
+name: Sphinx
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt install gettext
+      - run: pip install -r requirements.txt # venv の pip をすべてインストール
+      - name: sphinx build
+        run: sphinx-build source _build # sourceは原本のrootとなるindex.rstが入っている場所に適宜変更
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_build # sphinx の出力を gh-pages branch に送り込む
+
+```
+
+4. リモートリポジトリのmainブランチにpushする
