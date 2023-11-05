@@ -46,6 +46,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#sphinx">Sphinxのインストール</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#spinx-project">Spinx Project の作成</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#github-page">GitHub Pageの作成</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#github-actions">GitHub Actionsの作成</a></li>
 </ul>
 </li>
 </ul>
@@ -133,26 +134,30 @@
 <ol class="arabic simple" start="2">
 <li><p>拡張テーマの適用のため、conf.pyに以下を追記・書き換えする。</p></li>
 </ol>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sphinx_rtd_theme</span>
-
-<span class="n">html_theme</span> <span class="o">=</span> <span class="s1">&#39;sphinx_rtd_theme&#39;</span>
-<span class="n">html_theme_path</span> <span class="o">=</span> <span class="p">[</span><span class="n">sphinx_rtd_theme</span><span class="o">.</span><span class="n">get_html_theme_path</span><span class="p">()]</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="kn">import</span> <span class="nn">sphinx_rtd_theme</span>
+<span class="linenos">2</span>
+<span class="linenos">3</span><span class="n">html_theme</span> <span class="o">=</span> <span class="s1">&#39;sphinx_rtd_theme&#39;</span>
+<span class="linenos">4</span><span class="n">html_theme_path</span> <span class="o">=</span> <span class="p">[</span><span class="n">sphinx_rtd_theme</span><span class="o">.</span><span class="n">get_html_theme_path</span><span class="p">()]</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
 <li><p>MarkDown形式のファイルを利用可能にするため、conf.pyに以下を追記・書き換えする。</p></li>
 </ol>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">source_suffix</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;.rst&#39;</span><span class="p">:</span> <span class="s1">&#39;restructuredtext&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;.md&#39;</span><span class="p">:</span> <span class="s1">&#39;markdown&#39;</span><span class="p">,</span>
-<span class="p">}</span>
-
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span><span class="n">source_suffix</span> <span class="o">=</span> <span class="p">{</span>
+<span class="linenos">2</span>    <span class="s1">&#39;.rst&#39;</span><span class="p">:</span> <span class="s1">&#39;restructuredtext&#39;</span><span class="p">,</span>
+<span class="linenos">3</span>    <span class="s1">&#39;.md&#39;</span><span class="p">:</span> <span class="s1">&#39;markdown&#39;</span><span class="p">,</span>
+<span class="linenos">4</span><span class="p">}</span>
+<span class="linenos">5</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
 <li><p>Githubページへの適用のため、ビルドのディレクトリ構成を変更する。
 Windowsを利用しているため、make.batに以下の設定を追記・書き換え</p></li>
 </ol>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>後述するGitHubActionsを利用する場合は設定不要</p>
+</div>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">set</span><span class="w"> </span><span class="nv">BUILDDIR</span><span class="o">=</span>.
 <span class="nb">set</span><span class="w"> </span><span class="nv">ALLSPHINXOPTS</span><span class="o">=</span>-d<span class="w"> </span>%BUILDDIR%/doctrees<span class="w"> </span>%SPHINXOPTS%<span class="w"> </span><span class="nb">source</span>
 <span class="nb">set</span><span class="w"> </span><span class="nv">I18NSPHINXOPTS</span><span class="o">=</span>%SPHINXOPTS%<span class="w"> </span><span class="nb">source</span>
@@ -171,7 +176,7 @@ Windowsを利用しているため、make.batに以下の設定を追記・書�
 <section id="github-page">
 <h2>GitHub Pageの作成<a class="headerlink" href="#github-page" title="Link to this heading">¶</a></h2>
 <ol class="arabic simple">
-<li><p>Github上でレポジトリ(doc)を作成した後、masterと gh-pagesという名前のブランチを作成する</p></li>
+<li><p>Github上でレポジトリ(doc)を作成した後、mainと gh-pagesという名前のブランチを作成する</p></li>
 </ol>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/debugrecord/docs.git
 <span class="nb">cd</span><span class="w"> </span>doc
@@ -180,19 +185,82 @@ git<span class="w"> </span>branch<span class="w"> </span>gh-pages
 </pre></div>
 </div>
 <ol class="arabic simple" start="2">
+<li><p>作成したRepositoryの<code class="docutils literal notranslate"><span class="pre">Settings</span> <span class="pre">&gt;</span> <span class="pre">Code</span> <span class="pre">and</span> <span class="pre">automation</span> <span class="pre">&gt;</span> <span class="pre">Pages</span></code> でGitHubPagesの設定を行う</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Build</span> <span class="pre">and</span> <span class="pre">deployment</span></code>に以下の設定を行う</p>
+<ul class="simple">
+<li><p>source: deploy from a branch</p></li>
+<li><p>Branch: gh-pages /(root)</p></li>
+</ul>
+</li>
+</ol>
+</li>
 <li><p>作成したgh-pagesブランチに切り替え、sphinxsプロジェクトコピーし、htmlでビルドする。(index.htmlがルートに来るようにする。)</p></li>
 </ol>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>後述するGitHubActionsを利用する場合は実施不要</p>
+</div>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>checkout<span class="w"> </span>gh-pages
 cp<span class="w"> </span>somepath/test_sphinx<span class="w"> </span>.
 make<span class="w"> </span>html
 </pre></div>
 </div>
-<ol class="arabic simple" start="3">
+<ol class="arabic simple" start="4">
 <li><p>ビルドして出来たHTMLをプッシュし、http://xxxxxx.github.io/projectへアクセスする。</p></li>
 </ol>
+<div class="admonition warning">
+<p class="admonition-title">警告</p>
+<p>後述するGitHubActionsを利用する場合は実施不要</p>
+</div>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>gh-pages
 </pre></div>
 </div>
+</section>
+<section id="github-actions">
+<h2>GitHub Actionsの作成<a class="headerlink" href="#github-actions" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">main</span></code>ブランチに原本を配置し、<code class="docutils literal notranslate"><span class="pre">main</span></code>ブランチが更新される度に<code class="docutils literal notranslate"><span class="pre">gh-pages</span></code>ブランチにSphinxの出力結果のみを<code class="docutils literal notranslate"><span class="pre">push</span></code>するGitHubActionsの作成</p>
+<ol class="arabic simple">
+<li><p>Sphinx関連のライブラリがインストールされている環境で<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">freeze</span></code>を行い、Sphinxのビルドに必要なライブラリを記載した<code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code>を作成する</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>freeze<span class="w"> </span>&gt;<span class="w"> </span>requirements.txt
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Git repositoryの直下に<code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code>を配置する</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.github\docs</span></code>配下に以下の内容を記載した<code class="docutils literal notranslate"><span class="pre">sphinx.yml</span></code>を配置する</p></li>
+</ol>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Sphinx</span>
+
+<span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">push</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">branches</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">main</span>
+<span class="w">  </span><span class="nt">workflow_dispatch</span><span class="p">:</span>
+
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">build</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">permissions</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">contents</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">write</span>
+<span class="w">    </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">ACTIONS_ALLOW_UNSECURE_COMMANDS</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sudo apt install gettext</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">pip install -r requirements.txt</span><span class="w"> </span><span class="c1"># venv の pip をすべてインストール</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sphinx build</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sphinx-build source _build</span><span class="w"> </span><span class="c1"># sourceは原本のrootとなるindex.rstが入っている場所に適宜変更</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deploy</span>
+<span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">peaceiris/actions-gh-pages@v3</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">github_token</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.GITHUB_TOKEN }}</span>
+<span class="w">          </span><span class="nt">publish_dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./_build</span><span class="w"> </span><span class="c1"># sphinx の出力を gh-pages branch に送り込む</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>リモートリポジトリのmainブランチにpushする</p></li>
+</ol>
 </section>
 </section>
 
