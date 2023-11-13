@@ -131,7 +131,7 @@ pip freeze > requirements.txt
 ```
 2. Git repositoryの直下に`requirements.txt`を配置する
 
-3. `.github\docs`配下に以下の内容を記載した`sphinx.yml`を配置する
+3. `.github\workflows`配下に以下の内容を記載した`sphinx.yml`を配置する
 
 ```yaml
 name: Sphinx
